@@ -1,0 +1,7 @@
+Font to Webfont Converter
+Copyright 2026 Juan Silva
+
+This project contains an adapted interface and reused icon assets from the
+Video to Audio Converter project. The interface was modified to replace video
+and audio processing with OTF/TTF/WOFF to WOFF2/WOFF conversion.
+

@@ -1,0 +1,4 @@
+PyQt5==5.15.11
+fonttools>=4.0,<5
+brotli>=1.1,<2
+
