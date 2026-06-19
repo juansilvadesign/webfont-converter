@@ -32,34 +32,44 @@ from converter import ConversionResult, collect_font_files, convert_font
 
 
 APP_DIR = Path(__file__).resolve().parent
-FONT_DIR = APP_DIR / "fonts" / "adobe-caslon"
+FONT_DIRECTORIES = (
+    APP_DIR / "fonts" / "inter",
+    APP_DIR / "fonts" / "adobe-caslon",
+)
+DEFAULT_FONT_FAMILY = "Inter"
+FALLBACK_FONT_FAMILIES = ("Adobe Caslon",)
 FONT_FILTER = "Font Files (*.otf *.ttf *.woff)"
 
 
 def load_application_font(app: QApplication) -> str | None:
-    """Load the bundled Adobe Caslon styles and apply the family globally."""
+    """Load bundled fonts and apply the configured family stack globally."""
 
-    loaded_families: list[str] = []
-    for font_path in sorted(FONT_DIR.glob("*.ttf")):
-        font_id = QFontDatabase.addApplicationFont(str(font_path))
-        if font_id < 0:
-            continue
-        loaded_families.extend(QFontDatabase.applicationFontFamilies(font_id))
+    loaded_families: dict[str, str] = {}
+    for font_directory in FONT_DIRECTORIES:
+        for font_path in sorted(font_directory.glob("*.ttf")):
+            font_id = QFontDatabase.addApplicationFont(str(font_path))
+            if font_id < 0:
+                continue
+            for family in QFontDatabase.applicationFontFamilies(font_id):
+                loaded_families.setdefault(family.casefold(), family)
 
-    family = next(
-        (name for name in loaded_families if name.casefold() == "adobe caslon"),
-        None,
-    )
-    if family is None:
+    requested_families = (DEFAULT_FONT_FAMILY, *FALLBACK_FONT_FAMILIES)
+    resolved_families = [
+        loaded_families[name.casefold()]
+        for name in requested_families
+        if name.casefold() in loaded_families
+    ]
+    resolved_families = list(dict.fromkeys(resolved_families))
+    if not resolved_families:
         return None
 
     application_font = app.font()
-    application_font.setFamily(family)
-    # The bundled files report the same numeric weight internally, so select
-    # Regular by style name instead of letting Qt resolve the first match.
+    application_font.setFamilies(resolved_families)
+    # Adobe Caslon reports identical numeric weights in all bundled files.
+    # Selecting by style name keeps its Regular face deterministic when used.
     application_font.setStyleName("Regular")
     app.setFont(application_font)
-    return family
+    return resolved_families[0]
 
 
 @dataclass(frozen=True)

@@ -8,7 +8,7 @@ A PyQt5 desktop application for converting OTF, TTF, and WOFF fonts to WOFF2 or 
 - Import every supported font from a folder recursively.
 - Convert a batch to WOFF2 or legacy WOFF.
 - Choose the output folder.
-- Use the bundled Adobe Caslon family throughout the interface.
+- Use bundled Inter by default, with Adobe Caslon as the first fallback.
 - Track per-file progress without blocking the interface.
 - Continue the batch when one font fails and report the errors at the end.
 - Preserve existing files by generating names such as `Font (1).woff2`.
@@ -35,6 +35,24 @@ On Windows, replace `.venv/bin/` with `.venv\Scripts\`.
 
 Windows users can also run `run.bat` after creating `.venv`.
 
+## Changing the default interface font
+
+The font order is configured near the top of `app.py`:
+
+```python
+DEFAULT_FONT_FAMILY = "Inter"
+FALLBACK_FONT_FAMILIES = ("Adobe Caslon",)
+```
+
+To make Adobe Caslon the default and Inter its fallback, swap the values:
+
+```python
+DEFAULT_FONT_FAMILY = "Adobe Caslon"
+FALLBACK_FONT_FAMILIES = ("Inter",)
+```
+
+Fonts listed here must be present in one of the folders registered in `FONT_DIRECTORIES`. If no configured bundled family loads, Qt keeps the operating system's default font.
+
 ## Test
 
 ```bash
@@ -48,6 +66,7 @@ The test suite builds a minimal TrueType fixture and verifies both WOFF2 and WOF
 ```text
 app.py                 PyQt5 interface and background conversion thread
 converter.py           Reusable font collection and conversion engine
+fonts/inter/            Inter variable Regular and Italic styles
 fonts/adobe-caslon/     Adobe Caslon Regular, Italic, Semibold, and Bold styles
 icons/                 UI icons reused from Video to Audio Converter
 tests/test_converter.py

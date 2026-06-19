@@ -41,11 +41,19 @@ goto :fonts_check
 echo [OK] UI assets found.
 
 :fonts_check
-if exist "fonts\adobe-caslon\adobe-caslon-regular.ttf" if exist "fonts\adobe-caslon\adobe-caslon-italic.ttf" if exist "fonts\adobe-caslon\adobe-caslon-semibold.ttf" if exist "fonts\adobe-caslon\adobe-caslon-semibold-italic.ttf" if exist "fonts\adobe-caslon\adobe-caslon-bold.ttf" if exist "fonts\adobe-caslon\adobe-caslon-bold-italic.ttf" goto :fonts_ready
-echo [WARN] One or more Adobe Caslon font files are missing. The app will use the system fallback font.
+if exist "fonts\inter\inter-variable.ttf" if exist "fonts\inter\inter-variable-italic.ttf" goto :inter_ready
+echo [WARN] Inter is incomplete or missing. The app will try Adobe Caslon instead.
+goto :adobe_caslon_check
+
+:inter_ready
+echo [OK] Inter font family found.
+
+:adobe_caslon_check
+if exist "fonts\adobe-caslon\adobe-caslon-regular.ttf" if exist "fonts\adobe-caslon\adobe-caslon-italic.ttf" if exist "fonts\adobe-caslon\adobe-caslon-semibold.ttf" if exist "fonts\adobe-caslon\adobe-caslon-semibold-italic.ttf" if exist "fonts\adobe-caslon\adobe-caslon-bold.ttf" if exist "fonts\adobe-caslon\adobe-caslon-bold-italic.ttf" goto :adobe_caslon_ready
+echo [WARN] Adobe Caslon is incomplete or missing. The app will use the next available system fallback.
 goto :select_python
 
-:fonts_ready
+:adobe_caslon_ready
 echo [OK] Adobe Caslon font family found.
 
 :select_python
