@@ -6,9 +6,21 @@ The media conversion flow was replaced with fontTools-based webfont conversion.
 
 from __future__ import annotations
 
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+# Some third-party fonts installed on Windows contain family metadata that Qt
+# cannot enumerate. Qt reports those unrelated system-font records as warnings
+# while continuing normally. Disable only that warning category, before Qt is
+# imported, while preserving every other user- or system-defined logging rule.
+QT_FONT_WARNING_RULE = "qt.qpa.fonts.warning=false"
+existing_qt_logging_rules = os.environ.get("QT_LOGGING_RULES", "")
+if QT_FONT_WARNING_RULE not in existing_qt_logging_rules:
+    os.environ["QT_LOGGING_RULES"] = ";".join(
+        rule for rule in (existing_qt_logging_rules, QT_FONT_WARNING_RULE) if rule
+    )
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QFontDatabase, QIcon

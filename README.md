@@ -53,6 +53,10 @@ FALLBACK_FONT_FAMILIES = ("Inter",)
 
 Fonts listed here must be present in one of the folders registered in `FONT_DIRECTORIES`. If no configured bundled family loads, Qt keeps the operating system's default font.
 
+### Qt system-font warnings
+
+The app suppresses only `warning` messages from Qt's `qt.qpa.fonts` category. These can be emitted when Qt scans unrelated fonts installed on the operating system whose family metadata it cannot enumerate. Other Qt warnings, critical messages, and application errors remain visible.
+
 ## Test
 
 ```bash
