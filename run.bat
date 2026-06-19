@@ -35,10 +35,18 @@ if not exist "requirements.txt" (
 
 if exist "icons\add.png" if exist "icons\clear.png" if exist "icons\convert.png" if exist "icons\folder.png" goto :assets_ready
 echo [WARN] One or more UI icons are missing. The app can run, but some buttons may not display icons.
-goto :select_python
+goto :fonts_check
 
 :assets_ready
 echo [OK] UI assets found.
+
+:fonts_check
+if exist "fonts\adobe-caslon\adobe-caslon-regular.ttf" if exist "fonts\adobe-caslon\adobe-caslon-italic.ttf" if exist "fonts\adobe-caslon\adobe-caslon-semibold.ttf" if exist "fonts\adobe-caslon\adobe-caslon-semibold-italic.ttf" if exist "fonts\adobe-caslon\adobe-caslon-bold.ttf" if exist "fonts\adobe-caslon\adobe-caslon-bold-italic.ttf" goto :fonts_ready
+echo [WARN] One or more Adobe Caslon font files are missing. The app will use the system fallback font.
+goto :select_python
+
+:fonts_ready
+echo [OK] Adobe Caslon font family found.
 
 :select_python
 set "VENV_DIR=.venv"

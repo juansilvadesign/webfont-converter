@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QIcon
+from PyQt5.QtGui import QCloseEvent, QFontDatabase, QIcon
 from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
@@ -32,7 +32,34 @@ from converter import ConversionResult, collect_font_files, convert_font
 
 
 APP_DIR = Path(__file__).resolve().parent
+FONT_DIR = APP_DIR / "fonts" / "adobe-caslon"
 FONT_FILTER = "Font Files (*.otf *.ttf *.woff)"
+
+
+def load_application_font(app: QApplication) -> str | None:
+    """Load the bundled Adobe Caslon styles and apply the family globally."""
+
+    loaded_families: list[str] = []
+    for font_path in sorted(FONT_DIR.glob("*.ttf")):
+        font_id = QFontDatabase.addApplicationFont(str(font_path))
+        if font_id < 0:
+            continue
+        loaded_families.extend(QFontDatabase.applicationFontFamilies(font_id))
+
+    family = next(
+        (name for name in loaded_families if name.casefold() == "adobe caslon"),
+        None,
+    )
+    if family is None:
+        return None
+
+    application_font = app.font()
+    application_font.setFamily(family)
+    # The bundled files report the same numeric weight internally, so select
+    # Regular by style name instead of letting Qt resolve the first match.
+    application_font.setStyleName("Regular")
+    app.setFont(application_font)
+    return family
 
 
 @dataclass(frozen=True)
@@ -303,6 +330,7 @@ class FontToWebfontApp(QMainWindow):
 
 def main() -> int:
     app = QApplication(sys.argv)
+    load_application_font(app)
     window = FontToWebfontApp()
     window.show()
     return app.exec_()
@@ -310,4 +338,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
